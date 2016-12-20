@@ -37,7 +37,7 @@ var allItemsFromServer = [{ "item": "★ Karambit | Gamma Doppler (Factory New)"
 var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
-var startTime = 2;
+var startTime = 0;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -59,9 +59,7 @@ function refreshFunction() {
         setTimeout(done, refreshTime);
     }, function done() {
         if (ifERROR) {
-            setTimeout(function () {
                 refreshFunction();
-            }, refreshTime);
         }
         else {
             refreshFunction();
@@ -104,8 +102,8 @@ function getitemsPrice() {
                     }
                     console.log('ok');
                     io.emit('alert', "ok: " + startTime);
-        };
-        if (response.statusCode === 429 || error) {
+        }
+        else{
             ifERROR = true;
             console.log('error');
             io.emit('alert', "error: " + startTime);
