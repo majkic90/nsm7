@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 9;
+var startTime = 2;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -91,7 +91,7 @@ function getitemsPrice() {
                         for(var j=0; j < allItemsFromServer.length; j++){
                             if (knifes[i].item == allItemsFromServer[j].item) {
                                 if(price[i].price <= allItemsFromServer[j].price){
-                                    io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: allItemsFromServer[j].autobuy });   
+                                    io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: true });   
                                 }
                                 else{
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: false });   
