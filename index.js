@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 9;
+var startTime = 7;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -111,7 +111,6 @@ function getitemsPrice() {
 }
 
 function getOneItemPrice() {
-    ifERROR = false;
     request({
         url: "http://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"),
         json: true
