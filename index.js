@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 5;
+var startTime = 1;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -56,6 +56,7 @@ var refresh = setInterval(function () {
 function refreshFunction() {
     asyncForEach([1], function () {
         getitemsPrice();
+        getOneItemPrice();
         var done = this.async();
         setTimeout(done, refreshTime);
     }, function done() {
@@ -82,7 +83,6 @@ function getitemsPrice() {
                     $(".market_listing_searchresult .market_listing_item_name").each(function (index) {
                         knifes[index] = { "item": $(this).text() };
                     });
-
                     $(".normal_price").not('.market_table_value').each(function (index) {
                          price[index] = { "price": (parseInt($(this).text().substr(1)) * euro).toFixed(2)};
                     });
@@ -92,11 +92,12 @@ function getitemsPrice() {
                             if (knifes[i].item == allItemsFromServer[j].item) {
                                 if(price[i].price <= allItemsFromServer[j].price){
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: true });   
+                                    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: knifes[i].item, time: new Date(), price: price[i].price, tobuy: true}}, function(){});
                                 }
                                 else{
-                                    io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: false });   
-                                }       
-                                request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: knifes[i].item, time: new Date(), price: price[i].price, tobuy: allItemsFromServer[j].autobuy}}, function(){});
+                                    io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: false });  
+                                    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: knifes[i].item, time: new Date(), price: price[i].price, tobuy: false}}, function(){}); 
+                                }                        
                             }
                         }
                     }
@@ -105,6 +106,21 @@ function getitemsPrice() {
         else{
             ifERROR = true;
             io.emit('alert', "error: " + startTime);
+        }
+    });
+}
+
+function getOneItemPrice() {
+    ifERROR = false;
+    request({
+        url: "http://steamcommunity.com/market/priceoverview/?currency=3&appid=730&market_hash_name=" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"),
+        json: true
+    }, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            if(body.lowest_price){
+                io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"), img: "", tobuy: true });   
+                request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: "★ Karambit | Gamma Doppler (Factory New)", time: new Date(), price: body.lowest_price, tobuy: true}}, function(){});
+            }
         }
     });
 }
