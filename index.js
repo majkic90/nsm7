@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 9;
+var startTime = 1;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -101,10 +101,12 @@ function getitemsPrice() {
                             }
                         }
                     }
+                    console.log('ok');
                     io.emit('alert', "ok: " + startTime);
         }
         else{
             ifERROR = true;
+            console.log(error);
             io.emit('alert', "error: " + startTime);
         }
     });
