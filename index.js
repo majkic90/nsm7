@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 7;
+var startTime = 9;
 
 io.on('connection', function (socket) {
     socket.send("connect");
