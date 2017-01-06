@@ -123,7 +123,7 @@ function getOneItemPrice() {
                 io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"), img: "", tobuy: true });   
                 request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: "★ Karambit | Gamma Doppler (Factory New)", time: new Date(), price: body.lowest_price, tobuy: true}}, function(){});
         }
-        else{
+        if(error){
             console.log(error);
         }
     });
