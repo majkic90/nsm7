@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var knifes = [];
 var price = [];
-var startTime = 4;
+var startTime = 6;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -119,9 +119,12 @@ function getOneItemPrice() {
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 200 && !isEmpty(body.listinginfo)) {
-            console.log('ima');
+                console.log('ima');
                 io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"), img: "", tobuy: true });   
                 request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: "★ Karambit | Gamma Doppler (Factory New)", time: new Date(), price: body.lowest_price, tobuy: true}}, function(){});
+        }
+        else{
+            console.log(error);
         }
     });
 }
