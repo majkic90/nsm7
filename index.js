@@ -93,11 +93,10 @@ function getitemsPrice() {
                                     refOneItem = 4;
                                     getOneItemPrice(knifes[i].item);
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: true });   
-                                    saveJson(true, knifes[i].item);
                                 }
                                 else{
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: false });  
-                                    saveJson(false, knifes[i].item);
+                                    saveJson(false, knifes[i].item , []);
                                 }                        
                             }
                         }
@@ -127,6 +126,7 @@ function getOneItemPrice(name) {
                     total: body.listinginfo[keys[0]].converted_price_per_unit + body.listinginfo[keys[0]].converted_fee_per_unit
                 }
                 io.emit('buyItem', { param });
+                saveJson(true, knifes[i].item , param);
         }
         if(isEmpty(body.listinginfo) && refOneItem >= 0){
             refOneItem--;
@@ -140,8 +140,8 @@ function getOneItemPrice(name) {
     });
 }
 
-function saveJson (data, name){
-    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: name, time: new Date(), price: body.lowest_price, tobuy: data}}, function(){})
+function saveJson (data, name, param){
+    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: name, time: new Date(), price: body.lowest_price, tobuy: data , param: param}}, function(){})
 }
 
 function isEmpty(obj) {
