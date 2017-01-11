@@ -39,7 +39,7 @@ var refreshTime = 12000;
 var refOneItem = 4;
 var knifes = [];
 var price = [];
-var startTime = 1;
+var startTime = 2;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -75,8 +75,9 @@ function getitemsPrice() {
         url: "http://steamcommunity.com/market/search/render/?currency=3&appid=730&start=0&count=100&query=" + searchString,
         json: true
     }, function (error, response, body) {
+        
         if (!error && response.statusCode === 200) {
-                    var $ = cheerio.load(body.results_html);                  
+                    var $ = cheerio.load(body.results_html);            
                     knifes = [];
                     price = [];       
                     $(".market_listing_searchresult .market_listing_item_name").each(function (index) {
@@ -106,7 +107,7 @@ function getitemsPrice() {
         }
         else{
             ifERROR = true;
-            console.log(error);
+            console.log('error: ' + response.statusCode);
             io.emit('alert', "error: " + startTime);
         }
     });
