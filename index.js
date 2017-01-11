@@ -36,9 +36,10 @@ var allItemsFromServer = [{ "item": "★ Karambit | Gamma Doppler (Factory New)"
 
 var ifERROR = false;
 var refreshTime = 12000;
+var refOneItem = 4;
 var knifes = [];
 var price = [];
-var startTime = 3;
+var startTime = 0;
 
 io.on('connection', function (socket) {
     socket.send("connect");
@@ -56,7 +57,6 @@ var refresh = setInterval(function () {
 function refreshFunction() {
     asyncForEach([1], function () {
         getitemsPrice();
-        getOneItemPrice();
         var done = this.async();
         setTimeout(done, refreshTime);
     }, function done() {
@@ -78,26 +78,26 @@ function getitemsPrice() {
         if (!error && response.statusCode === 200) {
                     var $ = cheerio.load(body.results_html);                  
                     knifes = [];
-                    price = [];
-                    
+                    price = [];       
                     $(".market_listing_searchresult .market_listing_item_name").each(function (index) {
                         knifes[index] = { "item": $(this).text() };
                     });
                     $(".normal_price").not('.market_table_value').each(function (index) {
                          price[index] = { "price": (parseInt($(this).text().substr(1)) * euro).toFixed(2)};
                     });
-
+                    
                     for(var i=0; i < knifes.length; i++){
                         for(var j=0; j < allItemsFromServer.length; j++){
                             if (knifes[i].item == allItemsFromServer[j].item) {
                                 if(price[i].price <= allItemsFromServer[j].price){
+                                    refOneItem = 4;
+                                    getOneItemPrice(knifes[i].item);
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: true });   
-                                    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: knifes[i].item, time: new Date(), price: price[i].price, tobuy: true}}, function(){});
+                                    saveJson(true, knifes[i].item);
                                 }
                                 else{
-                                    console.log('nema');
                                     io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent(knifes[i].item), img: "", tobuy: false });  
-                                    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: knifes[i].item, time: new Date(), price: price[i].price, tobuy: false}}, function(){}); 
+                                    saveJson(false, knifes[i].item);
                                 }                        
                             }
                         }
@@ -113,20 +113,35 @@ function getitemsPrice() {
     });
 }
 
-function getOneItemPrice() {
+function getOneItemPrice(name) {
     request({
-        url: "http://steamcommunity.com/market/listings/730/"+ encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)") + "/render?start=0&count=10&currency=3&language=english&format=json",
+        url: "http://steamcommunity.com/market/listings/730/"+ encodeURIComponent(name) + "/render?start=0&count=10&currency=3&language=english&format=json",
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 200 && !isEmpty(body.listinginfo)) {
-                console.log('ima');
-                io.emit('hello', { text: "http://steamcommunity.com/market/listings/730/" + encodeURIComponent("★ Karambit | Gamma Doppler (Factory New)"), img: "", tobuy: true });   
-                request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: "★ Karambit | Gamma Doppler (Factory New)", time: new Date(), price: body.lowest_price, tobuy: true}}, function(){});
+                var keys = Object.keys(body.listinginfo);
+                var param = {
+                    listingid: body.listinginfo[keys[0]].listingid,
+                    subtotal: body.listinginfo[keys[0]].converted_price_per_unit,
+                    fee: body.listinginfo[keys[0]].converted_fee_per_unit,
+                    total: body.listinginfo[keys[0]].converted_price_per_unit + body.listinginfo[keys[0]].converted_fee_per_unit
+                }
+                io.emit('buyItem', { param });
+        }
+        if(isEmpty(body.listinginfo) && refOneItem >= 0){
+            refOneItem--;
+            setTimeout(function(){
+                getOneItemPrice(name);
+            }, 1000);
         }
         if(error){
             console.log(error);
         }
     });
+}
+
+function saveJson (data, name){
+    request({ url: 'https://api.myjson.com/bins/3d1jx', method: 'PUT', json: {item: name, time: new Date(), price: body.lowest_price, tobuy: data}}, function(){})
 }
 
 function isEmpty(obj) {
