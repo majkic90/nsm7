@@ -38,7 +38,7 @@ var ifERROR = false;
 var refreshTime = 12000;
 var refOneItem = 4;
 var knifes = [];
-var startTime = 1;
+var startTime = 2;
 
 io.on('connection', function (socket) {
     socket.send("connect");
